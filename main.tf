@@ -16,7 +16,7 @@ module "solr_rg" {
   service        = "solr"
   tags           = local.tags
 }
-/*
+
 module "solr_subnet" {
   source      = "./modules/network/subnet"
   rg_name     = "UKSOUTH-NRFLIFT-PRD-RGP-NETWORK"
@@ -165,7 +165,7 @@ module "solr_avs" {
   avs_ud   = 5
   tags     = local.tags
 }
-*/
+
 module "solr_kv" {
   source                        = "./modules/kv"
   rg_name                       = module.solr_rg.name
@@ -198,7 +198,7 @@ module "solr_slave2_secret" {
   secret_name = local.solr_slave2_vm_name
   tags        = local.tags
 }
-/*
+
 module "solr_master_vm_datadisk" {
   source        = "./modules/compute/disk"
   rg_name       = module.solr_rg.name
@@ -312,10 +312,9 @@ module "solr_slave2_vm_datadisk_attach" {
   disk_lun     = "0"
   disk_caching = "ReadOnly"
 }
-*/
+
 /* Pending:
 - Storage Account for Boot Diagnosis
-- Hash password for VMs
 - Auto config Solr installation
 - Auto config datadisk format and mounting
 */
