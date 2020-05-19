@@ -41,18 +41,3 @@ variable "client_secret" {
   description = "Enter Client Secret of Service Principal to use for authentication"
   type        = string
 }
-
-variable "solr_master_secret" {
-  description = "Password for the Solr Master VM"
-  type        = string
-}
-
-variable "solr_slave1_secret" {
-  description = "Password for the Solr Slave 1 VM"
-  type        = string
-}
-
-variable "solr_slave2_secret" {
-  description = "Password for the Solr Slave 2 VM"
-  type        = string
-}

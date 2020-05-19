@@ -1,6 +1,6 @@
 # Establish connection to Azure through Service Principal
 provider "azurerm" {
-  version         = "2.9.0"
+  version         = ">= 2.9.0"
   subscription_id = var.subscription_id
   client_id       = var.client_id
   client_secret   = var.client_secret
@@ -16,7 +16,7 @@ module "solr_rg" {
   service        = "solr"
   tags           = local.tags
 }
-
+/*
 module "solr_subnet" {
   source      = "./modules/network/subnet"
   rg_name     = "UKSOUTH-NRFLIFT-PRD-RGP-NETWORK"
@@ -165,7 +165,7 @@ module "solr_avs" {
   avs_ud   = 5
   tags     = local.tags
 }
-
+*/
 module "solr_kv" {
   source                        = "./modules/kv"
   rg_name                       = module.solr_rg.name
@@ -179,29 +179,26 @@ module "solr_kv" {
 }
 
 module "solr_master_secret" {
-  source       = "./modules/kv/secret"
-  kv_id        = module.solr_kv.id
-  secret_name  = local.solr_master_vm_name
-  secret_value = var.solr_master_secret
-  tags         = local.tags
+  source      = "./modules/kv/secret"
+  kv_id       = module.solr_kv.id
+  secret_name = local.solr_master_vm_name
+  tags        = local.tags
 }
 
 module "solr_slave1_secret" {
-  source       = "./modules/kv/secret"
-  kv_id        = module.solr_kv.id
-  secret_name  = local.solr_slave1_vm_name
-  secret_value = var.solr_slave1_secret
-  tags         = local.tags
+  source      = "./modules/kv/secret"
+  kv_id       = module.solr_kv.id
+  secret_name = local.solr_slave1_vm_name
+  tags        = local.tags
 }
 
 module "solr_slave2_secret" {
-  source       = "./modules/kv/secret"
-  kv_id        = module.solr_kv.id
-  secret_name  = local.solr_slave2_vm_name
-  secret_value = var.solr_slave2_secret
-  tags         = local.tags
+  source      = "./modules/kv/secret"
+  kv_id       = module.solr_kv.id
+  secret_name = local.solr_slave2_vm_name
+  tags        = local.tags
 }
-
+/*
 module "solr_master_vm_datadisk" {
   source        = "./modules/compute/disk"
   rg_name       = module.solr_rg.name
@@ -315,9 +312,10 @@ module "solr_slave2_vm_datadisk_attach" {
   disk_lun     = "0"
   disk_caching = "ReadOnly"
 }
-
-# Pending:
-# - Storage Account for Boot Diagnosis
-# - Hash password for VMs
-# - Auto config Solr installation
-# - Auto config datadisk format and mounting
+*/
+/* Pending:
+- Storage Account for Boot Diagnosis
+- Hash password for VMs
+- Auto config Solr installation
+- Auto config datadisk format and mounting
+*/

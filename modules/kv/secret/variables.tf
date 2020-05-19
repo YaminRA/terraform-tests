@@ -8,11 +8,6 @@ variable "secret_name" {
   type        = string
 }
 
-variable "secret_value" {
-  description = "Secret value to be stored"
-  type        = string
-}
-
 variable "tags" {
   description = "Enter Tags to identify deployed resources"
   type = map(string)
