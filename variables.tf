@@ -32,11 +32,6 @@ variable "tenant_id" {
   type        = string
 }
 
-variable "object_id" {
-  description = "The object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault"
-  type        = string
-}
-
 variable "client_id" {
   description = "Enter Client ID of Service Principal to use for authentication"
   type        = string

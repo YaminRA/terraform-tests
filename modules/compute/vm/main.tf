@@ -27,7 +27,5 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = var.os_version
   }
 
-  custom_data = var.custom_data
-
   tags = var.tags
 }

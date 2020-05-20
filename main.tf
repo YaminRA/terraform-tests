@@ -190,17 +190,6 @@ module "solr_kv_ap" {
   sgp       = ["backup", "delete", "deletesas", "get", "getsas", "list", "listsas", "purge", "recover", "regeneratekey", "restore", "set", "setsas", "update"]
 }
 
-module "solr_kv_ap_tmp" {
-  source    = "./modules/kv/ap"
-  kv_id     = module.solr_kv.id
-  tenant_id = var.tenant_id
-  object_id = var.object_id
-  kp        = ["backup", "create", "decrypt", "delete", "encrypt", "get", "import", "list", "purge", "recover", "restore", "sign", "unwrapKey", "update", "verify", "wrapKey"]
-  sp        = ["backup", "delete", "get", "list", "purge", "recover", "restore", "set"]
-  cp        = ["backup", "create", "delete", "deleteissuers", "get", "getissuers", "import", "list", "listissuers", "managecontacts", "manageissuers", "purge", "recover", "restore", "setissuers", "update"]
-  sgp       = ["backup", "delete", "deletesas", "get", "getsas", "list", "listsas", "purge", "recover", "regeneratekey", "restore", "set", "setsas", "update"]
-}
-
 module "solr_master_secret" {
   source      = "./modules/kv/secret"
   kv_id       = module.solr_kv.id
@@ -268,7 +257,6 @@ module "solr_master_vm" {
   offer             = "CentOS"
   sku               = "8_1"
   os_version        = "latest"
-  custom_data       = base64encode(file("./scripts/install_solr.sh"))
   tags              = local.tags
 }
 
@@ -288,7 +276,6 @@ module "solr_slave1_vm" {
   offer             = "CentOS"
   sku               = "8_1"
   os_version        = "latest"
-  custom_data       = base64encode(file("./scripts/install_solr.sh"))
   tags              = local.tags
 }
 
@@ -308,7 +295,6 @@ module "solr_slave2_vm" {
   offer             = "CentOS"
   sku               = "8_1"
   os_version        = "latest"
-  custom_data       = base64encode(file("./scripts/install_solr.sh"))
   tags              = local.tags
 }
 
