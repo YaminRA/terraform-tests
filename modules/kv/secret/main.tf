@@ -1,9 +1,5 @@
-provider "random" {
-  version = ">= 2.2.1"
-}
-
 resource "random_password" "secret" {
-  length = 16
+  length = 24
   upper = true
   min_upper = 4
   lower = true
