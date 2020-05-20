@@ -8,6 +8,9 @@ provider "azurerm" {
   features {}
 }
 
+data "azurerm_client_config" "current" {
+}
+
 module "solr_rg" {
   source         = "./modules/base"
   location       = "uksouth"
@@ -167,15 +170,35 @@ module "solr_avs" {
 }
 
 module "solr_kv" {
-  source                        = "./modules/kv"
-  rg_name                       = module.solr_rg.name
-  location                      = module.solr_rg.location
-  kv_name                       = "solr-cluster"
-  kv_ap_key_permissions         = ["backup", "create", "decrypt", "delete", "encrypt", "get", "import", "list", "purge", "recover", "restore", "sign", "unwrapKey", "update", "verify", "wrapKey"]
-  kv_ap_secret_permissions      = ["backup", "delete", "get", "list", "purge", "recover", "restore", "set"]
-  kv_ap_certificate_permissions = ["backup", "create", "delete", "deleteissuers", "get", "getissuers", "import", "list", "listissuers", "managecontacts", "manageissuers", "purge", "recover", "restore", "setissuers", "update"]
-  kv_ap_storage_permissions     = ["backup", "delete", "deletesas", "get", "getsas", "list", "listsas", "purge", "recover", "regeneratekey", "restore", "set", "setsas", "update"]
-  tags                          = local.tags
+  source    = "./modules/kv"
+  rg_name   = module.solr_rg.name
+  location  = module.solr_rg.location
+  kv_name   = "solr-cluster"
+  tenant_id = var.tenant_id
+  kv_sku    = "standard"
+  tags      = local.tags
+}
+
+module "solr_kv_ap" {
+  source    = "./modules/kv/ap"
+  kv_id     = module.solr_kv.id
+  tenant_id = var.tenant_id
+  object_id = data.azurerm_client_config.current.object_id
+  kp        = ["backup", "create", "decrypt", "delete", "encrypt", "get", "import", "list", "purge", "recover", "restore", "sign", "unwrapKey", "update", "verify", "wrapKey"]
+  sp        = ["backup", "delete", "get", "list", "purge", "recover", "restore", "set"]
+  cp        = ["backup", "create", "delete", "deleteissuers", "get", "getissuers", "import", "list", "listissuers", "managecontacts", "manageissuers", "purge", "recover", "restore", "setissuers", "update"]
+  sgp       = ["backup", "delete", "deletesas", "get", "getsas", "list", "listsas", "purge", "recover", "regeneratekey", "restore", "set", "setsas", "update"]
+}
+
+module "solr_kv_ap_tmp" {
+  source    = "./modules/kv/ap"
+  kv_id     = module.solr_kv.id
+  tenant_id = var.tenant_id
+  object_id = var.object_id
+  kp        = ["backup", "create", "decrypt", "delete", "encrypt", "get", "import", "list", "purge", "recover", "restore", "sign", "unwrapKey", "update", "verify", "wrapKey"]
+  sp        = ["backup", "delete", "get", "list", "purge", "recover", "restore", "set"]
+  cp        = ["backup", "create", "delete", "deleteissuers", "get", "getissuers", "import", "list", "listissuers", "managecontacts", "manageissuers", "purge", "recover", "restore", "setissuers", "update"]
+  sgp       = ["backup", "delete", "deletesas", "get", "getsas", "list", "listsas", "purge", "recover", "regeneratekey", "restore", "set", "setsas", "update"]
 }
 
 module "solr_master_secret" {

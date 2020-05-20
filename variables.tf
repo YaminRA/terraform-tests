@@ -28,7 +28,12 @@ variable "subscription_id" {
 }
 
 variable "tenant_id" {
-  description = "Enter Tenand ID (Directory ID) of your Azure AD"
+  description = "The Azure Active Directory tenant ID that should be used for authenticating requests"
+  type        = string
+}
+
+variable "object_id" {
+  description = "The object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault"
   type        = string
 }
 
