@@ -264,16 +264,16 @@ module "solr_master_vm" {
   location          = module.solr_rg.location
   vm_prefix         = "master"
   size              = local.vm_size
-  vm_admin_username = "solradmin"
+  vm_admin_username = local.vm_admin_username
   vm_admin_password = module.solr_master_secret.value
   nic_id            = module.solr_master_nic.id
   avs_id            = module.solr_avs.id
-  os_caching        = "ReadWrite"
+  os_caching        = local.vm_oscaching
   sa_type           = local.osdisk_sa_type
-  publisher         = "OpenLogic"
-  offer             = "CentOS"
-  sku               = "8_1"
-  os_version        = "latest"
+  publisher         = local.vm_publisher
+  offer             = local.vm_offer
+  sku               = local.vm_sku
+  os_version        = local.vm_version
   sa_uri            = module.solr_master_sa.pbe
   tags              = local.tags
 }
@@ -284,16 +284,16 @@ module "solr_slave1_vm" {
   location          = module.solr_rg.location
   vm_prefix         = "slave1"
   size              = local.vm_size
-  vm_admin_username = "solradmin"
+  vm_admin_username = local.vm_admin_username
   vm_admin_password = module.solr_slave1_secret.value
   nic_id            = module.solr_slave1_nic.id
   avs_id            = module.solr_avs.id
-  os_caching        = "ReadWrite"
+  os_caching        = local.vm_oscaching
   sa_type           = local.osdisk_sa_type
-  publisher         = "OpenLogic"
-  offer             = "CentOS"
-  sku               = "8_1"
-  os_version        = "latest"
+  publisher         = local.vm_publisher
+  offer             = local.vm_offer
+  sku               = local.vm_sku
+  os_version        = local.vm_version
   sa_uri            = module.solr_slave1_sa.pbe
   tags              = local.tags
 }
@@ -304,16 +304,16 @@ module "solr_slave2_vm" {
   location          = module.solr_rg.location
   vm_prefix         = "slave2"
   size              = local.vm_size
-  vm_admin_username = "solradmin"
+  vm_admin_username = local.vm_admin_username
   vm_admin_password = module.solr_slave2_secret.value
   nic_id            = module.solr_slave2_nic.id
   avs_id            = module.solr_avs.id
-  os_caching        = "ReadWrite"
+  os_caching        = local.vm_oscaching
   sa_type           = local.osdisk_sa_type
-  publisher         = "OpenLogic"
-  offer             = "CentOS"
-  sku               = "8_1"
-  os_version        = "latest"
+  publisher         = local.vm_publisher
+  offer             = local.vm_offer
+  sku               = local.vm_sku
+  os_version        = local.vm_version
   sa_uri            = module.solr_slave2_sa.pbe
   tags              = local.tags
 }
@@ -340,6 +340,15 @@ module "solr_slave2_vm_datadisk_attach" {
   vm_id        = module.solr_slave2_vm.id
   disk_lun     = "0"
   disk_caching = "ReadOnly"
+}
+
+module "provision_solr_master" {
+  source = "./modules/config"
+  connection_host     = local.solr_master_nic_ip
+  connection_type     = "ssh"
+  connection_user     = local.vm_admin_username
+  connection_password = module.solr_master_secret.value
+  module_depends_on   = [module.solr_master_vm_datadisk_attach.id]
 }
 
 /* Pending:

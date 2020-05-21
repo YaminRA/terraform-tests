@@ -12,6 +12,12 @@ locals {
   datadisk_create_opt     = "Empty"
   datadisk_size           = 512
   vm_size                 = "Standard_DS1_v2"
+  vm_oscaching            = "ReadWrite"
+  vm_admin_username       = "solradmin"
+  vm_publisher            = "OpenLogic"
+  vm_offer                = "CentOS"
+  vm_sku                  = "8_1"
+  vm_version              = "latest"
   osdisk_sa_type          = "Premium_LRS"
   tags = {
     Tier            = "Backend"
