@@ -10,18 +10,18 @@ variable "location" {
 
 variable "avs_fd" {
   description = "Specifies the number of fault domains that are used"
-  type = number
-  default = 1
+  type        = number
+  default     = 1
 }
 
 variable "avs_ud" {
   description = "Specifies the number of update domains that are used"
-  type = number
-  default = 1
+  type        = number
+  default     = 1
 }
 
 variable "tags" {
   description = "Enter Tags to identify deployed resources"
-  type = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
 }

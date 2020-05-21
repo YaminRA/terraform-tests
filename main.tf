@@ -228,6 +228,36 @@ module "solr_slave2_vm_datadisk" {
   size          = local.datadisk_size
 }
 
+module "solr_master_sa" {
+  source      = "./modules/storage"
+  rg_name     = module.solr_rg.name
+  location    = module.solr_rg.location
+  sa_name     = "slrmst"
+  tier        = "Standard"
+  replication = "LRS"
+  tags        = local.tags
+}
+
+module "solr_slave1_sa" {
+  source      = "./modules/storage"
+  rg_name     = module.solr_rg.name
+  location    = module.solr_rg.location
+  sa_name     = "solrslv1"
+  tier        = "Standard"
+  replication = "LRS"
+  tags        = local.tags
+}
+
+module "solr_slave2_sa" {
+  source      = "./modules/storage"
+  rg_name     = module.solr_rg.name
+  location    = module.solr_rg.location
+  sa_name     = "solrslv1"
+  tier        = "Standard"
+  replication = "LRS"
+  tags        = local.tags
+}
+
 module "solr_master_vm" {
   source            = "./modules/compute/vm"
   rg_name           = module.solr_rg.name
@@ -244,6 +274,7 @@ module "solr_master_vm" {
   offer             = "CentOS"
   sku               = "8_1"
   os_version        = "latest"
+  sa_uri            = module.solr_master_sa.pbe
   tags              = local.tags
 }
 
@@ -263,6 +294,7 @@ module "solr_slave1_vm" {
   offer             = "CentOS"
   sku               = "8_1"
   os_version        = "latest"
+  sa_uri            = module.solr_slave1_sa.pbe
   tags              = local.tags
 }
 
@@ -282,6 +314,7 @@ module "solr_slave2_vm" {
   offer             = "CentOS"
   sku               = "8_1"
   os_version        = "latest"
+  sa_uri            = module.solr_slave2_sa.pbe
   tags              = local.tags
 }
 
@@ -310,7 +343,6 @@ module "solr_slave2_vm_datadisk_attach" {
 }
 
 /* Pending:
-- Storage Account for Boot Diagnosis
 - Auto config Solr installation
 - Auto config datadisk format and mounting
 */

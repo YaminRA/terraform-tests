@@ -29,23 +29,23 @@ variable "vm_admin_password" {
 }
 
 variable "nic_id" {
-    description = "A list of Network Interface ID's which should be attached to this Virtual Machine. The first Network Interface ID in this list will be the Primary Network Interface on the Virtual Machine"
-    type = string
+  description = "A list of Network Interface ID's which should be attached to this Virtual Machine. The first Network Interface ID in this list will be the Primary Network Interface on the Virtual Machine"
+  type        = string
 }
 
 variable "avs_id" {
-    description = "Specifies the ID of the Availability Set in which the Virtual Machine should exist"
-    type = string
+  description = "Specifies the ID of the Availability Set in which the Virtual Machine should exist"
+  type        = string
 }
 
 variable "os_caching" {
-    description = "The Type of Caching which should be used for the Internal OS Disk. Possible values are None, ReadOnly and ReadWrite"
-    type = string
+  description = "The Type of Caching which should be used for the Internal OS Disk. Possible values are None, ReadOnly and ReadWrite"
+  type        = string
 }
 
 variable "sa_type" {
-    description = "The Type of Storage Account which should back this the Internal OS Disk. Possible values are Standard_LRS, StandardSSD_LRS and Premium_LRS"
-    type = string
+  description = "The Type of Storage Account which should back this the Internal OS Disk. Possible values are Standard_LRS, StandardSSD_LRS and Premium_LRS"
+  type        = string
 }
 
 variable "publisher" {
@@ -68,8 +68,13 @@ variable "os_version" {
   type        = string
 }
 
+variable "sa_uri" {
+  description = "The Primary/Secondary Endpoint for the Azure Storage Account which should be used to store Boot Diagnostics, including Console Output and Screenshots from the Hypervisor"
+  type        = string
+}
+
 variable "tags" {
   description = "Enter Tags to identify deployed resources"
-  type = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
 }

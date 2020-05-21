@@ -1,21 +1,21 @@
 locals {
-  vm_name = "${var.rg_name}-${var.vm_prefix}"
+  vm_name      = "${var.rg_name}-${var.vm_prefix}"
   os_disk_name = "${local.vm_name}-osdisk"
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  resource_group_name = var.rg_name
-  name                = local.vm_name
-  location            = var.location
-  size                = var.size
-  admin_username   = var.vm_admin_username
-  admin_password = var.vm_admin_password
+  resource_group_name             = var.rg_name
+  name                            = local.vm_name
+  location                        = var.location
+  size                            = var.size
+  admin_username                  = var.vm_admin_username
+  admin_password                  = var.vm_admin_password
   disable_password_authentication = false
-  network_interface_ids = [var.nic_id]
-  availability_set_id = var.avs_id
+  network_interface_ids           = [var.nic_id]
+  availability_set_id             = var.avs_id
 
   os_disk {
-    name = local.os_disk_name
+    name                 = local.os_disk_name
     caching              = var.os_caching
     storage_account_type = var.sa_type
   }
@@ -25,6 +25,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
     offer     = var.offer
     sku       = var.sku
     version   = var.os_version
+  }
+
+  boot_diagnostics {
+    storage_account_uri = var.sa_uri
   }
 
   tags = var.tags

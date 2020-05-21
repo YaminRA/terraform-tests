@@ -14,31 +14,31 @@ variable "lb_id" {
 }
 
 variable "protocol" {
-    description = "Rule protocol"
-    type = string
+  description = "Rule protocol"
+  type        = string
 }
 
 variable "fe_ipc_name" {
-    description = "Frontend IP configuration name"
-    type = string
+  description = "Frontend IP configuration name"
+  type        = string
 }
 
 variable "fe_port" {
-    description = "Port to receive requests"
-    type = number
+  description = "Port to receive requests"
+  type        = number
 }
 
 variable "be_port" {
-    description = "Port to send requests"
-    type = number
+  description = "Port to send requests"
+  type        = number
 }
 
 variable "lb_bap_id" {
-    description = "Load Balancer Backend Address Pool ID"
-    type = string
+  description = "Load Balancer Backend Address Pool ID"
+  type        = string
 }
 
 variable "lb_probe_id" {
-    description = "Load Balancer Health probe ID"
-    type = string
+  description = "Load Balancer Health probe ID"
+  type        = string
 }

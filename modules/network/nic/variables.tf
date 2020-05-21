@@ -31,11 +31,11 @@ variable "nic_ipconfig" {
 variable "nic_ip" {
   description = "The Static IP Address which should be used"
   type        = string
-  default = ""
+  default     = ""
 }
 
 variable "tags" {
   description = "A mapping of tags to assign to the resource"
-  type = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
 }

@@ -14,6 +14,6 @@ variable "lb_id" {
 }
 
 variable "port" {
-    description = "Port to perform health probe"
-    type = number
+  description = "Port to perform health probe"
+  type        = number
 }

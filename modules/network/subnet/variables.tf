@@ -19,6 +19,6 @@ variable "subnet_pool" {
 }
 
 variable "subnet_cidr" {
-    description = "Subnet address ranges for Solr resources"
-    type = list(string)
+  description = "Subnet address ranges for Solr resources"
+  type        = list(string)
 }

@@ -11,7 +11,7 @@ variable "location" {
 variable "tags" {
   description = "Enter Tags to identify deployed resources"
   type        = map(string)
-  default = {}
+  default     = {}
 }
 
 variable "subnet_id" {
