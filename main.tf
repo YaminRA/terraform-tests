@@ -343,7 +343,7 @@ module "solr_slave2_vm_datadisk_attach" {
 }
 
 module "provision_solr_master" {
-  source = "./modules/config"
+  source              = "./modules/config"
   connection_host     = local.solr_master_nic_ip
   connection_type     = "ssh"
   connection_user     = local.vm_admin_username
