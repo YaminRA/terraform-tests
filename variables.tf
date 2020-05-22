@@ -1,4 +1,7 @@
 locals {
+  tenant_id               = data.azurerm_client_config.current.tenant_id
+  vnet_name               = "${module.solr_rg.name}-vnet"
+  vnet_address_space      = ["10.68.19.0/24"]
   solr_subnet_cidr_prefix = "10.68.19"
   solr_subnet_cidr        = "${local.solr_subnet_cidr_prefix}.240/28"
   solr_lb_ip              = "${local.solr_subnet_cidr_prefix}.244"
@@ -26,24 +29,4 @@ locals {
     Service         = "Solr"
     TerraformScript = "solrCluster_0.1.0"
   }
-}
-
-variable "subscription_id" {
-  description = "Enter Subscription ID where resources will be provisioned in Azure"
-  type        = string
-}
-
-variable "tenant_id" {
-  description = "The Azure Active Directory tenant ID that should be used for authenticating requests"
-  type        = string
-}
-
-variable "client_id" {
-  description = "Enter Client ID of Service Principal to use for authentication"
-  type        = string
-}
-
-variable "client_secret" {
-  description = "Enter Client Secret of Service Principal to use for authentication"
-  type        = string
 }
