@@ -1,19 +1,16 @@
 resource "random_password" "secret" {
-  length           = 24
-  upper            = true
-  min_upper        = 4
-  lower            = true
-  min_lower        = 4
-  number           = true
-  min_numeric      = 4
-  special          = true
-  min_special      = 4
-  override_special = "@#$%^*()-=_+[]{};<>?,./"
+  length           = var.secret_length
+  min_upper        = var.min_upper
+  min_lower        = var.min_lower
+  min_numeric      = var.min_numeric
+  min_special      = var.min_special
+  override_special = var.allowed_special_chars
 }
 
 resource "azurerm_key_vault_secret" "secret" {
+  name         = var.name
   key_vault_id = var.kv_id
-  name         = var.secret_name
   value        = random_password.secret.result
+  content_type = var.content
   tags         = var.tags
 }

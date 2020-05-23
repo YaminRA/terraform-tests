@@ -1,20 +1,10 @@
+variable "name" {
+  description = "The Name which should be used for this Resource Group"
+  type        = string
+}
+
 variable "location" {
   description = "Region where resource will be deployed"
-  type        = string
-}
-
-variable "infrastructure" {
-  description = "Name of the app to be deployed"
-  type        = string
-}
-
-variable "environment" {
-  description = "Environment where resource will be deployed"
-  type        = string
-}
-
-variable "service" {
-  description = "Service that will be deployed"
   type        = string
 }
 

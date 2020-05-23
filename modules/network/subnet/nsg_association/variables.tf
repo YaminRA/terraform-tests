@@ -1,9 +1,9 @@
 variable "subnet_id" {
-  description = "Subnet to attach to NSG"
+  description = "The ID of the Subnet"
   type        = string
 }
 
 variable "nsg_id" {
-  description = "NSG ID to attach to network resources"
+  description = "The ID of the Network Security Group which should be associated with the Subnet"
   type        = string
 }

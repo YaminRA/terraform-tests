@@ -1,10 +1,10 @@
-variable "rg_name" {
-  description = "Resource Group where Availability Set will be deployed"
+variable "name" {
+  description = "The name of the Network Interface"
   type        = string
 }
 
-variable "nic_prefix" {
-  description = "Prefix name for NIC"
+variable "rg_name" {
+  description = "The name of the Resource Group in which to create the Network Interface"
   type        = string
 }
 
@@ -13,8 +13,8 @@ variable "location" {
   type        = string
 }
 
-variable "ip_name" {
-  description = "Name used for this IP Configuration"
+variable "ipc_name" {
+  description = "A name used for this IP Configuration"
   type        = string
 }
 
@@ -23,13 +23,18 @@ variable "subnet_id" {
   type        = string
 }
 
-variable "nic_ipconfig" {
+variable "private_ip_allocation" {
   description = "The allocation method used for the Private IP Address. Possible values are Dynamic and Static"
   type        = string
 }
 
-variable "nic_ip" {
+variable "private_ip" {
   description = "The Static IP Address which should be used"
+  type        = string
+}
+
+variable "pip_id" {
+  description = "Reference to a Public IP Address to associate with this NIC"
   type        = string
   default     = ""
 }

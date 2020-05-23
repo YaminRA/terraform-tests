@@ -1,30 +1,46 @@
+variable "name" {
+  description = "Specifies the name of the Load Balancer"
+  type        = string
+}
+
 variable "rg_name" {
-  description = "Resource Group where Availability Set will be deployed"
+  description = "The name of the Resource Group in which to create the Load Balancer"
   type        = string
 }
 
 variable "location" {
-  description = "Location where the Key Vault will be deployed"
+  description = "Specifies the supported Azure Region where the Load Balancer should be created"
   type        = string
 }
 
+variable "sku" {
+  description = "The SKU of the Azure Load Balancer. Accepted values are Basic and Standard"
+  type        = string
+  default     = "Basic"
+}
+
 variable "tags" {
-  description = "Enter Tags to identify deployed resources"
+  description = "A mapping of tags to assign to the resource"
   type        = map(string)
   default     = {}
 }
 
+variable "fe_ipc_name" {
+  description = "Specifies the name of the frontend ip configuration"
+  type        = string
+}
+
 variable "subnet_id" {
-  description = "Subnet to attach Load Balancer"
+  description = " The ID of the Subnet which should be associated with the IP Configuration"
   type        = string
 }
 
-variable "private_address_allocation" {
-  description = "Dynamic or Static"
+variable "private_ip_allocation" {
+  description = "The allocation method for the Private IP Address used by this Load Balancer. Possible values as Dynamic and Static"
   type        = string
 }
 
-variable "ip_address" {
-  description = "Private IP address for Load Balancer"
+variable "private_ip" {
+  description = " Private IP Address to assign to the Load Balancer. The last one and first four IPs in any range are reserved and cannot be manually assigned"
   type        = string
 }

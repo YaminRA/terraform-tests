@@ -1,5 +1,10 @@
+variable "name" {
+  description = "Specifies the name of the Key Vault"
+  type        = string
+}
+
 variable "rg_name" {
-  description = "Resource Group where Availability Set will be deployed"
+  description = "The name of the resource group in which to create the Key Vault"
   type        = string
 }
 
@@ -8,17 +13,12 @@ variable "location" {
   type        = string
 }
 
-variable "kv_name" {
-  description = "Specifies the name of the Key Vault"
-  type        = string
-}
-
 variable "tenant_id" {
   description = "The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault"
   type        = string
 }
 
-variable "kv_sku" {
+variable "sku" {
   description = "The Name of the SKU used for this Key Vault. Possible values are standard and premium"
   type        = string
 }

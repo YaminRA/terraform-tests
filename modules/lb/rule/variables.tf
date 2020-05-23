@@ -1,44 +1,44 @@
-variable "rg_name" {
-  description = "Resource Group where Availability Set will be deployed"
+variable "name" {
+  description = "Specifies the name of the LB Rule"
   type        = string
 }
 
-variable "lb_name" {
-  description = "Load Balancer name to attach Backend Address Pool"
+variable "rg_name" {
+  description = "The name of the resource group in which to create the resource"
   type        = string
 }
 
 variable "lb_id" {
-  description = "Load Balancer ID to attach Backend Address Pool"
-  type        = string
-}
-
-variable "protocol" {
-  description = "Rule protocol"
+  description = "The ID of the Load Balancer in which to create the Rule"
   type        = string
 }
 
 variable "fe_ipc_name" {
-  description = "Frontend IP configuration name"
+  description = "The name of the frontend IP configuration to which the rule is associated"
+  type        = string
+}
+
+variable "protocol" {
+  description = "The transport protocol for the external endpoint. Possible values are Tcp, Udp or All"
   type        = string
 }
 
 variable "fe_port" {
-  description = "Port to receive requests"
+  description = "The port for the external endpoint. Port numbers for each Rule must be unique within the Load Balancer. Possible values range between 0 and 65534, inclusive"
   type        = number
 }
 
 variable "be_port" {
-  description = "Port to send requests"
+  description = "The port used for internal connections on the endpoint. Possible values range between 0 and 65535, inclusive"
   type        = number
 }
 
 variable "lb_bap_id" {
-  description = "Load Balancer Backend Address Pool ID"
+  description = "A reference to a Backend Address Pool over which this Load Balancing Rule operates"
   type        = string
 }
 
-variable "lb_probe_id" {
-  description = "Load Balancer Health probe ID"
+variable "lb_pb_id" {
+  description = "A reference to a Probe used by this Load Balancing Rule"
   type        = string
 }

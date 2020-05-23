@@ -1,4 +1,4 @@
-variable "ip_name" {
+variable "ipc_name" {
   description = "The Name of the IP Configuration within the Network Interface which should be connected to the Backend Address Pool"
   type        = string
 }

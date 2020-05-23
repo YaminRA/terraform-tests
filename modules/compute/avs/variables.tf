@@ -1,10 +1,15 @@
+variable "name" {
+  description = "Specifies the name of the availability set"
+  type        = string
+}
+
 variable "rg_name" {
-  description = "Resource Group where Availability Set will be deployed"
+  description = "The name of the resource group in which to create the availability set"
   type        = string
 }
 
 variable "location" {
-  description = "Location where the Availability Set will be deployed"
+  description = "Specifies the supported Azure location where the resource exists"
   type        = string
 }
 
@@ -21,7 +26,7 @@ variable "avs_ud" {
 }
 
 variable "tags" {
-  description = "Enter Tags to identify deployed resources"
+  description = "A mapping of tags to assign to the resource"
   type        = map(string)
   default     = {}
 }

@@ -1,14 +1,14 @@
-variable "rg_name" {
-  description = "Resource Group where Availability Set will be deployed"
+variable "name" {
+  description = "Specifies the name of the Backend Address Pool"
   type        = string
 }
 
-variable "lb_name" {
-  description = "Load Balancer name to attach Backend Address Pool"
+variable "rg_name" {
+  description = "The name of the resource group in which to create the resource"
   type        = string
 }
 
 variable "lb_id" {
-  description = "Load Balancer ID to attach Backend Address Pool"
+  description = "The ID of the Load Balancer in which to create the Backend Address Pool"
   type        = string
 }

@@ -1,25 +1,32 @@
-module "solr_rg" {
-  source         = "./modules/base"
-  location       = "uksouth"
-  infrastructure = "nrfmicr"
-  environment    = "prd"
-  service        = "solr"
-  tags           = local.tags
+module "rg" {
+  source   = "./modules/base"
+  name     = local.rg_name
+  location = local.glb_location
+  tags     = local.tags
+}
+# VNet created only for testing purposes
+module "vnet" {
+  source        = "./modules/network/vnet"
+  name          = local.vnet_name
+  rg_name       = module.rg.name
+  location      = local.glb_location
+  address_space = local.vnet_address_space
+  tags          = local.tags
 }
 
-module "solr_subnet" {
-  source      = "./modules/network/subnet"
-  rg_name     = "UKSOUTH-NRFLIFT-PRD-RGP-NETWORK"
-  vnet_name   = "UKSOUTH-NRFLIFT-PRD-VNT"
-  subnet_name = module.solr_rg.name
-  subnet_pool = "ms"
-  subnet_cidr = [local.solr_subnet_cidr]
+module "subnet" {
+  source       = "./modules/network/subnet"
+  name         = local.subnet_name
+  rg_name      = module.rg.name
+  vnet_name    = module.vnet.name
+  address_cidr = local.subnet_cidr
 }
 
-module "solr_nsg" {
+module "nsg" {
   source   = "./modules/network/nsg"
-  rg_name  = module.solr_rg.name
-  location = module.solr_rg.location
+  name     = local.nsg_name
+  rg_name  = module.rg.name
+  location = local.glb_location
   tags     = local.tags
 }
 
@@ -34,8 +41,8 @@ module "solr_nsg_rule_association" {
   destination_port_range     = "8983"
   source_address_prefix      = "*"
   destination_address_prefix = "*"
-  rg_name                    = module.solr_rg.name
-  nsg_name                   = module.solr_nsg.name
+  rg_name                    = module.rg.name
+  nsg_name                   = module.nsg.name
 }
 
 module "ssh_nsg_rule_association" {
@@ -49,225 +56,230 @@ module "ssh_nsg_rule_association" {
   destination_port_range     = "22"
   source_address_prefix      = "*"
   destination_address_prefix = "*"
-  rg_name                    = module.solr_rg.name
-  nsg_name                   = module.solr_nsg.name
+  rg_name                    = module.rg.name
+  nsg_name                   = module.nsg.name
 }
 
-module "solr_nsg_subnet_association" {
+module "nsg_subnet_association" {
   source    = "./modules/network/subnet/nsg_association"
-  subnet_id = module.solr_subnet.id
-  nsg_id    = module.solr_nsg.id
+  subnet_id = module.subnet.id
+  nsg_id    = module.nsg.id
 }
 
-module "solr_lb" {
-  source                     = "./modules/lb"
-  rg_name                    = module.solr_rg.name
-  location                   = module.solr_rg.location
-  subnet_id                  = module.solr_subnet.id
-  private_address_allocation = "Static"
-  ip_address                 = local.solr_lb_ip
-  tags                       = local.tags
+module "lb" {
+  source                = "./modules/lb"
+  name                  = local.lb_name
+  rg_name               = module.rg.name
+  location              = local.glb_location
+  fe_ipc_name           = local.lb_fe_ipc_name
+  subnet_id             = module.subnet.id
+  private_ip_allocation = local.lb_private_ip_allocation
+  private_ip            = local.lb_private_ip
+  tags                  = local.tags
 }
 
-module "solr_lb_bap" {
+module "lb_bap" {
   source  = "./modules/lb/bap"
-  rg_name = module.solr_rg.name
-  lb_name = module.solr_lb.name
-  lb_id   = module.solr_lb.id
+  name    = local.lb_bap_name
+  rg_name = module.rg.name
+  lb_id   = module.lb.id
 }
 
-module "solr_lb_pb" {
-  source  = "./modules/lb/probe"
-  rg_name = module.solr_rg.name
-  lb_name = module.solr_lb.name
-  lb_id   = module.solr_lb.id
-  port    = 8983
+module "lb_pb" {
+  source   = "./modules/lb/probe"
+  name     = local.lb_pb_name
+  rg_name  = module.rg.name
+  lb_id    = module.lb.id
+  protocol = local.lb_pb_protocol
+  port     = local.lb_pb_port
 }
 
-module "solr_lb_rule" {
+module "lb_rule" {
   source      = "./modules/lb/rule"
-  rg_name     = module.solr_rg.name
-  lb_name     = module.solr_lb.name
-  lb_id       = module.solr_lb.id
-  protocol    = "Tcp"
-  fe_port     = 8983
-  be_port     = 8983
-  fe_ipc_name = module.solr_lb.fe_ipc_name
-  lb_bap_id   = module.solr_lb_bap.id
-  lb_probe_id = module.solr_lb_pb.id
+  name        = local.lb_rule_name
+  rg_name     = module.rg.name
+  lb_id       = module.lb.id
+  fe_ipc_name = local.lb_fe_ipc_name
+  protocol    = local.lb_pb_protocol
+  fe_port     = local.lb_pb_port
+  be_port     = local.lb_pb_port
+  lb_bap_id   = module.lb_bap.id
+  lb_pb_id    = module.lb_pb.id
 }
 
 module "solr_master_nic" {
-  source       = "./modules/network/nic"
-  rg_name      = module.solr_rg.name
-  location     = module.solr_rg.location
-  nic_prefix   = "master"
-  ip_name      = "Internal"
-  subnet_id    = module.solr_subnet.id
-  nic_ipconfig = "Static"
-  nic_ip       = local.solr_master_nic_ip
-  tags         = local.tags
+  source                = "./modules/network/nic"
+  name                  = local.solr_master_nic_name
+  rg_name               = module.rg.name
+  location              = local.glb_location
+  ipc_name              = local.nic_ipc_name
+  subnet_id             = module.subnet.id
+  private_ip_allocation = local.nic_private_ip_allocation
+  private_ip            = local.solr_master_private_ip
+  #pip_id       = module.solr_master_pip.pip_id
+  tags = local.tags
 }
 
-module "solr_slave1_nic" {
-  source       = "./modules/network/nic"
-  rg_name      = module.solr_rg.name
-  location     = module.solr_rg.location
-  nic_prefix   = "slave1"
-  ip_name      = "Internal"
-  subnet_id    = module.solr_subnet.id
-  nic_ipconfig = "Static"
-  nic_ip       = local.solr_slave1_nic_ip
-  tags         = local.tags
+module "solr_slave_1_nic" {
+  source                = "./modules/network/nic"
+  name                  = local.solr_slave_1_nic_name
+  rg_name               = module.rg.name
+  location              = local.glb_location
+  ipc_name              = local.nic_ipc_name
+  subnet_id             = module.subnet.id
+  private_ip_allocation = local.nic_private_ip_allocation
+  private_ip            = local.solr_slave_1_private_ip
+  #pip_id       = module.solr_master_pip.pip_id
+  tags = local.tags
 }
 
-module "solr_slave2_nic" {
-  source       = "./modules/network/nic"
-  rg_name      = module.solr_rg.name
-  location     = module.solr_rg.location
-  nic_prefix   = "slave2"
-  ip_name      = "Internal"
-  subnet_id    = module.solr_subnet.id
-  nic_ipconfig = "Static"
-  nic_ip       = local.solr_slave2_nic_ip
-  tags         = local.tags
+module "solr_slave_2_nic" {
+  source                = "./modules/network/nic"
+  name                  = local.solr_slave_2_nic_name
+  rg_name               = module.rg.name
+  location              = local.glb_location
+  ipc_name              = local.nic_ipc_name
+  subnet_id             = module.subnet.id
+  private_ip_allocation = local.nic_private_ip_allocation
+  private_ip            = local.solr_slave_2_private_ip
+  #pip_id       = module.solr_master_pip.pip_id
+  tags = local.tags
 }
 
-module "solr_slave1_nic_bap_as" {
-  source  = "./modules/network/nic/bapas"
-  ip_name = module.solr_slave1_nic.ip_name
-  nic_id  = module.solr_slave1_nic.id
-  bap_id  = module.solr_lb_bap.id
+module "solr_slave_1_nic_bap_as" {
+  source   = "./modules/network/nic/bapas"
+  ipc_name = local.nic_ipc_name
+  nic_id   = module.solr_slave_1_nic.id
+  bap_id   = module.lb_bap.id
 }
 
-module "solr_slave2_nic_bap_as" {
-  source  = "./modules/network/nic/bapas"
-  ip_name = module.solr_slave2_nic.ip_name
-  nic_id  = module.solr_slave2_nic.id
-  bap_id  = module.solr_lb_bap.id
+module "solr_slave_2_nic_bap_as" {
+  source   = "./modules/network/nic/bapas"
+  ipc_name = local.nic_ipc_name
+  nic_id   = module.solr_slave_2_nic.id
+  bap_id   = module.lb_bap.id
 }
 
-module "solr_avs" {
+module "avs" {
   source   = "./modules/compute/avs"
-  rg_name  = module.solr_rg.name
-  location = module.solr_rg.location
+  name     = local.avs_name
+  rg_name  = module.rg.name
+  location = local.glb_location
   avs_fd   = 2
   avs_ud   = 5
   tags     = local.tags
 }
 
-module "solr_kv" {
+module "kv" {
   source    = "./modules/kv"
-  rg_name   = module.solr_rg.name
-  location  = module.solr_rg.location
-  kv_name   = "solr-cluster"
-  tenant_id = var.tenant_id
-  kv_sku    = "standard"
+  name      = local.kv_name
+  rg_name   = module.rg.name
+  location  = local.glb_location
+  tenant_id = local.tenant_id
+  sku       = local.kv_sku
   tags      = local.tags
 }
 
-module "solr_kv_ap" {
-  source    = "./modules/kv/ap"
-  kv_id     = module.solr_kv.id
-  tenant_id = var.tenant_id
-  object_id = data.azurerm_client_config.current.object_id
-  kp        = ["backup", "create", "decrypt", "delete", "encrypt", "get", "import", "list", "purge", "recover", "restore", "sign", "unwrapKey", "update", "verify", "wrapKey"]
-  sp        = ["backup", "delete", "get", "list", "purge", "recover", "restore", "set"]
-  cp        = ["backup", "create", "delete", "deleteissuers", "get", "getissuers", "import", "list", "listissuers", "managecontacts", "manageissuers", "purge", "recover", "restore", "setissuers", "update"]
-  sgp       = ["backup", "delete", "deletesas", "get", "getsas", "list", "listsas", "purge", "recover", "regeneratekey", "restore", "set", "setsas", "update"]
+module "kv_ap" {
+  source                  = "./modules/kv/ap"
+  kv_id                   = module.kv.id
+  tenant_id               = local.tenant_id
+  object_id               = local.object_id
+  key_permissions         = local.kv_ap_key_permissions
+  secret_permissions      = local.kv_ap_secret_permissions
+  certificate_permissions = local.kv_ap_certificate_permissions
+  storage_permissions     = local.kv_ap_storage_permissions
 }
 
 module "solr_master_secret" {
-  source      = "./modules/kv/secret"
-  kv_id       = module.solr_kv.id
-  secret_name = local.solr_master_vm_name
-  tags        = local.tags
+  source                = "./modules/kv/secret"
+  name                  = local.solr_master_vm_name
+  kv_id                 = module.kv.id
+  content               = local.kv_secret_content
+  secret_length         = local.kv_secret_length
+  min_upper             = local.kv_secret_min_upper
+  min_lower             = local.kv_secret_min_lower
+  min_numeric           = local.kv_secret_min_numeric
+  min_special           = local.kv_secret_min_special
+  allowed_special_chars = local.kv_secret_allowed_special_chars
+  tags                  = local.tags
 }
 
-module "solr_slave1_secret" {
-  source      = "./modules/kv/secret"
-  kv_id       = module.solr_kv.id
-  secret_name = local.solr_slave1_vm_name
-  tags        = local.tags
+module "solr_slave_1_secret" {
+  source                = "./modules/kv/secret"
+  name                  = local.solr_slave_1_vm_name
+  kv_id                 = module.kv.id
+  content               = local.kv_secret_content
+  secret_length         = local.kv_secret_length
+  min_upper             = local.kv_secret_min_upper
+  min_lower             = local.kv_secret_min_lower
+  min_numeric           = local.kv_secret_min_numeric
+  min_special           = local.kv_secret_min_special
+  allowed_special_chars = local.kv_secret_allowed_special_chars
+  tags                  = local.tags
 }
 
-module "solr_slave2_secret" {
-  source      = "./modules/kv/secret"
-  kv_id       = module.solr_kv.id
-  secret_name = local.solr_slave2_vm_name
-  tags        = local.tags
+module "solr_slave_2_secret" {
+  source                = "./modules/kv/secret"
+  name                  = local.solr_slave_2_vm_name
+  kv_id                 = module.kv.id
+  content               = local.kv_secret_content
+  secret_length         = local.kv_secret_length
+  min_upper             = local.kv_secret_min_upper
+  min_lower             = local.kv_secret_min_lower
+  min_numeric           = local.kv_secret_min_numeric
+  min_special           = local.kv_secret_min_special
+  allowed_special_chars = local.kv_secret_allowed_special_chars
+  tags                  = local.tags
 }
 
-module "solr_master_vm_datadisk" {
-  source        = "./modules/compute/disk"
-  rg_name       = module.solr_rg.name
-  location      = module.solr_rg.location
-  disk_prefix   = "master"
-  sa_type       = local.datadisk_sa_type
-  create_option = local.datadisk_create_opt
-  size          = local.datadisk_size
-}
-
-module "solr_slave1_vm_datadisk" {
-  source        = "./modules/compute/disk"
-  rg_name       = module.solr_rg.name
-  location      = module.solr_rg.location
-  disk_prefix   = "slave1"
-  sa_type       = local.datadisk_sa_type
-  create_option = local.datadisk_create_opt
-  size          = local.datadisk_size
-}
-
-module "solr_slave2_vm_datadisk" {
-  source        = "./modules/compute/disk"
-  rg_name       = module.solr_rg.name
-  location      = module.solr_rg.location
-  disk_prefix   = "slave2"
-  sa_type       = local.datadisk_sa_type
-  create_option = local.datadisk_create_opt
-  size          = local.datadisk_size
+resource "azurerm_key_vault_secret" "ssh_test" {
+  name         = "SSH-Private-Key"
+  value        = base64encode(file("./terraform_rsa"))
+  key_vault_id = module.kv.id
 }
 
 module "solr_master_sa" {
   source      = "./modules/storage"
-  rg_name     = module.solr_rg.name
-  location    = module.solr_rg.location
-  sa_name     = "slrmst"
-  tier        = "Standard"
-  replication = "LRS"
+  name        = local.solr_master_sa_name
+  rg_name     = module.rg.name
+  location    = local.glb_location
+  tier        = local.sa_tier
+  replication = local.sa_replication
   tags        = local.tags
 }
 
-module "solr_slave1_sa" {
+module "solr_slave_1_sa" {
   source      = "./modules/storage"
-  rg_name     = module.solr_rg.name
-  location    = module.solr_rg.location
-  sa_name     = "solrslv1"
-  tier        = "Standard"
-  replication = "LRS"
+  name        = local.solr_slave_1_sa_name
+  rg_name     = module.rg.name
+  location    = local.glb_location
+  tier        = local.sa_tier
+  replication = local.sa_replication
   tags        = local.tags
 }
 
-module "solr_slave2_sa" {
+module "solr_slave_2_sa" {
   source      = "./modules/storage"
-  rg_name     = module.solr_rg.name
-  location    = module.solr_rg.location
-  sa_name     = "solrslv1"
-  tier        = "Standard"
-  replication = "LRS"
+  name        = local.solr_slave_2_sa_name
+  rg_name     = module.rg.name
+  location    = local.glb_location
+  tier        = local.sa_tier
+  replication = local.sa_replication
   tags        = local.tags
 }
 
 module "solr_master_vm" {
   source            = "./modules/compute/vm"
-  rg_name           = module.solr_rg.name
-  location          = module.solr_rg.location
-  vm_prefix         = "master"
+  name              = local.solr_master_vm_name
+  rg_name           = module.rg.name
+  location          = local.glb_location
   size              = local.vm_size
   vm_admin_username = local.vm_admin_username
   vm_admin_password = module.solr_master_secret.value
-  nic_id            = module.solr_master_nic.id
-  avs_id            = module.solr_avs.id
+  nic_ids           = [module.solr_master_nic.id]
+  avs_id            = module.avs.id
+  os_disk_name      = local.solr_master_vm_osdisk_name
   os_caching        = local.vm_oscaching
   sa_type           = local.osdisk_sa_type
   publisher         = local.vm_publisher
@@ -278,79 +290,138 @@ module "solr_master_vm" {
   tags              = local.tags
 }
 
-module "solr_slave1_vm" {
+module "solr_slave_1_vm" {
   source            = "./modules/compute/vm"
-  rg_name           = module.solr_rg.name
-  location          = module.solr_rg.location
-  vm_prefix         = "slave1"
+  name              = local.solr_slave_1_vm_name
+  rg_name           = module.rg.name
+  location          = local.glb_location
   size              = local.vm_size
   vm_admin_username = local.vm_admin_username
-  vm_admin_password = module.solr_slave1_secret.value
-  nic_id            = module.solr_slave1_nic.id
-  avs_id            = module.solr_avs.id
+  vm_admin_password = module.solr_slave_1_secret.value
+  nic_ids           = [module.solr_slave_1_nic.id]
+  avs_id            = module.avs.id
+  os_disk_name      = local.solr_slave_1_vm_osdisk_name
   os_caching        = local.vm_oscaching
   sa_type           = local.osdisk_sa_type
   publisher         = local.vm_publisher
   offer             = local.vm_offer
   sku               = local.vm_sku
   os_version        = local.vm_version
-  sa_uri            = module.solr_slave1_sa.pbe
+  sa_uri            = module.solr_slave_1_sa.pbe
   tags              = local.tags
 }
 
-module "solr_slave2_vm" {
+module "solr_slave_2_vm" {
   source            = "./modules/compute/vm"
-  rg_name           = module.solr_rg.name
-  location          = module.solr_rg.location
-  vm_prefix         = "slave2"
+  name              = local.solr_slave_2_vm_name
+  rg_name           = module.rg.name
+  location          = local.glb_location
   size              = local.vm_size
   vm_admin_username = local.vm_admin_username
-  vm_admin_password = module.solr_slave2_secret.value
-  nic_id            = module.solr_slave2_nic.id
-  avs_id            = module.solr_avs.id
+  vm_admin_password = module.solr_slave_2_secret.value
+  nic_ids           = [module.solr_slave_2_nic.id]
+  avs_id            = module.avs.id
+  os_disk_name      = local.solr_slave_2_vm_osdisk_name
   os_caching        = local.vm_oscaching
   sa_type           = local.osdisk_sa_type
   publisher         = local.vm_publisher
   offer             = local.vm_offer
   sku               = local.vm_sku
   os_version        = local.vm_version
-  sa_uri            = module.solr_slave2_sa.pbe
+  sa_uri            = module.solr_slave_2_sa.pbe
   tags              = local.tags
+}
+
+module "solr_master_vm_datadisk" {
+  source        = "./modules/compute/disk"
+  name          = local.solr_master_vm_datadisk_name
+  rg_name       = module.rg.name
+  location      = local.glb_location
+  sa_type       = local.datadisk_sa_type
+  create_option = local.datadisk_create_option
+  size          = local.datadisk_size
+}
+
+module "solr_slave_1_vm_datadisk" {
+  source        = "./modules/compute/disk"
+  name          = local.solr_slave_1_vm_datadisk_name
+  rg_name       = module.rg.name
+  location      = local.glb_location
+  sa_type       = local.datadisk_sa_type
+  create_option = local.datadisk_create_option
+  size          = local.datadisk_size
+}
+
+module "solr_slave_2_vm_datadisk" {
+  source        = "./modules/compute/disk"
+  name          = local.solr_slave_2_vm_datadisk_name
+  rg_name       = module.rg.name
+  location      = local.glb_location
+  sa_type       = local.datadisk_sa_type
+  create_option = local.datadisk_create_option
+  size          = local.datadisk_size
 }
 
 module "solr_master_vm_datadisk_attach" {
   source       = "./modules/compute/vm/attdisk"
   disk_id      = module.solr_master_vm_datadisk.id
   vm_id        = module.solr_master_vm.id
-  disk_lun     = "0"
-  disk_caching = "ReadOnly"
+  disk_lun     = local.datadisk_lun
+  disk_caching = local.datadisk_caching
 }
 
-module "solr_slave1_vm_datadisk_attach" {
+module "solr_slave_1_vm_datadisk_attach" {
   source       = "./modules/compute/vm/attdisk"
-  disk_id      = module.solr_slave1_vm_datadisk.id
-  vm_id        = module.solr_slave1_vm.id
-  disk_lun     = "0"
-  disk_caching = "ReadOnly"
+  disk_id      = module.solr_slave_1_vm_datadisk.id
+  vm_id        = module.solr_slave_1_vm.id
+  disk_lun     = local.datadisk_lun
+  disk_caching = local.datadisk_caching
 }
 
-module "solr_slave2_vm_datadisk_attach" {
+module "solr_slave_2_vm_datadisk_attach" {
   source       = "./modules/compute/vm/attdisk"
-  disk_id      = module.solr_slave2_vm_datadisk.id
-  vm_id        = module.solr_slave2_vm.id
-  disk_lun     = "0"
-  disk_caching = "ReadOnly"
+  disk_id      = module.solr_slave_2_vm_datadisk.id
+  vm_id        = module.solr_slave_2_vm.id
+  disk_lun     = local.datadisk_lun
+  disk_caching = local.datadisk_caching
 }
 
+/*
+module "solr_master_pip" {
+  source   = "./modules/network/pip"
+  name     = local.solr_master_pip_name
+  rg_name  = module.solr_rg.name
+  location = module.solr_rg.location
+  tags     = local.tags
+}
+
+module "solr_slave1_pip" {
+  source   = "./modules/network/pip"
+  name     = local.solr_slave1_pip_name
+  rg_name  = module.solr_rg.name
+  location = module.solr_rg.location
+  tags     = local.tags
+}
+
+module "solr_slave2_pip" {
+  source   = "./modules/network/pip"
+  name     = local.solr_slave2_pip_name
+  rg_name  = module.solr_rg.name
+  location = module.solr_rg.location
+  tags     = local.tags
+}
+*/
+/*
 module "provision_solr_master" {
-  source              = "./modules/config"
-  connection_host     = local.solr_master_nic_ip
-  connection_type     = "ssh"
-  connection_user     = local.vm_admin_username
-  connection_password = module.solr_master_secret.value
-  module_depends_on   = [module.solr_master_vm_datadisk_attach.id]
+  source                 = "./modules/config"
+  connection_host        = module.solr_master_pip.ip_address
+  connection_type        = "ssh"
+  connection_user        = local.vm_admin_username
+  connection_password    = module.solr_master_secret.value
+  connection_private_key = file("${path.root}/terraform_rsa")
+  module_depends_on      = [module.solr_master_vm_datadisk_attach.id]
 }
-
+*/
 /* Pending:
 - Auto config Solr installation
 - Auto config datadisk format and mounting

@@ -1,24 +1,19 @@
+variable "name" {
+  description = "The name of the subnet"
+  type        = string
+}
+
 variable "rg_name" {
-  description = "Resource Group where VNet lives"
+  description = "The name of the resource group in which to create the subnet"
   type        = string
 }
 
 variable "vnet_name" {
-  description = "VNet where Subnet will be deployed"
+  description = "The name of the virtual network to which to attach the subnet"
   type        = string
 }
 
-variable "subnet_name" {
-  description = "Subnet name that will be deployed"
-  type        = string
-}
-
-variable "subnet_pool" {
-  description = "Subnet pool name prefix"
-  type        = string
-}
-
-variable "subnet_cidr" {
-  description = "Subnet address ranges for Solr resources"
+variable "address_cidr" {
+  description = "The address prefixes to use for the subnet"
   type        = list(string)
 }

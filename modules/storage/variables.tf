@@ -1,4 +1,4 @@
-variable "sa_name" {
+variable "name" {
   description = "Specifies the name of the storage account. This must be unique across the entire Azure service, not just within the resource group"
   type        = string
 }

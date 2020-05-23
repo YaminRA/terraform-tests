@@ -1,3 +1,8 @@
+variable "name" {
+  description = "Specifies the name of the Managed Disk"
+  type        = string
+}
+
 variable "rg_name" {
   description = "The name of the Resource Group where the Managed Disk should exist"
   type        = string
@@ -5,11 +10,6 @@ variable "rg_name" {
 
 variable "location" {
   description = "Specified the supported Azure location where the resource exists"
-  type        = string
-}
-
-variable "disk_prefix" {
-  description = "Disk name prefix"
   type        = string
 }
 

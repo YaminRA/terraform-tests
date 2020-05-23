@@ -15,3 +15,6 @@ variable "connection_user" {
 variable "connection_password" {
   type = string
 }
+variable "connection_private_key" {
+  type = string
+}

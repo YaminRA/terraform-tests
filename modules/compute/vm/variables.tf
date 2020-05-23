@@ -1,3 +1,8 @@
+variable "name" {
+  description = "The name of the Linux Virtual Machine"
+  type        = string
+}
+
 variable "rg_name" {
   description = "The name of the Resource Group in which the Linux Virtual Machine should exist"
   type        = string
@@ -5,11 +10,6 @@ variable "rg_name" {
 
 variable "location" {
   description = "The Azure location where the Linux Virtual Machine should exist"
-  type        = string
-}
-
-variable "vm_prefix" {
-  description = "Prefix name of VM to deploy"
   type        = string
 }
 
@@ -28,13 +28,18 @@ variable "vm_admin_password" {
   type        = string
 }
 
-variable "nic_id" {
+variable "nic_ids" {
   description = "A list of Network Interface ID's which should be attached to this Virtual Machine. The first Network Interface ID in this list will be the Primary Network Interface on the Virtual Machine"
-  type        = string
+  type        = list(string)
 }
 
 variable "avs_id" {
   description = "Specifies the ID of the Availability Set in which the Virtual Machine should exist"
+  type        = string
+}
+
+variable "os_disk_name" {
+  description = "The name which should be used for the Internal OS Disk"
   type        = string
 }
 
