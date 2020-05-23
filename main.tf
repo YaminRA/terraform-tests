@@ -116,8 +116,8 @@ module "solr_master_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_master_private_ip
-  pip_id       = module.solr_master_pip.id
-  tags = local.tags
+  pip_id                = module.solr_master_pip.id
+  tags                  = local.tags
 }
 
 module "solr_slave_1_nic" {
@@ -129,8 +129,8 @@ module "solr_slave_1_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_slave_1_private_ip
-  pip_id       = module.solr_slave_1_pip.id
-  tags = local.tags
+  pip_id                = module.solr_slave_1_pip.id
+  tags                  = local.tags
 }
 
 module "solr_slave_2_nic" {
@@ -142,8 +142,8 @@ module "solr_slave_2_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_slave_2_private_ip
-  pip_id       = module.solr_slave_2_pip.id
-  tags = local.tags
+  pip_id                = module.solr_slave_2_pip.id
+  tags                  = local.tags
 }
 
 module "solr_slave_1_nic_bap_as" {

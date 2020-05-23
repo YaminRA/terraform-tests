@@ -27,7 +27,7 @@ locals {
   lb_pb_port               = 8983
   lb_rule_name             = "${local.lb_name}-RL"
 
-  nic_ipc_name              = "INTERNAL"
+  nic_ipc_name              = "Internal"
   nic_private_ip_allocation = "Static"
   solr_master_nic_name      = "${local.glb_name}-MSTR-NIC"
   solr_master_private_ip    = "10.68.19.245"
@@ -78,9 +78,9 @@ locals {
   datadisk_size                 = 512
   datadisk_lun                  = "0"
   datadisk_caching              = "ReadOnly"
-  solr_master_vm_datadisk_name  = "${local.solr_master_vm_name}-MSTR-VM-DATADISK"
-  solr_slave_1_vm_datadisk_name = "${local.solr_slave_1_vm_name}-SLV1-VM-DATADISK"
-  solr_slave_2_vm_datadisk_name = "${local.solr_slave_2_vm_name}-SLV2-VM-DATADISK"
+  solr_master_vm_datadisk_name  = "${local.glb_name}-MSTR-VM-DATADISK"
+  solr_slave_1_vm_datadisk_name = "${local.glb_name}-SLV1-VM-DATADISK"
+  solr_slave_2_vm_datadisk_name = "${local.glb_name}-SLV2-VM-DATADISK"
 
   tenant_id = data.azurerm_client_config.current.tenant_id
   object_id = data.azurerm_client_config.current.object_id
