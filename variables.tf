@@ -82,15 +82,9 @@ locals {
   solr_slave_1_vm_datadisk_name = "${local.solr_slave_1_vm_name}-SLV1-VM-DATADISK"
   solr_slave_2_vm_datadisk_name = "${local.solr_slave_2_vm_name}-SLV2-VM-DATADISK"
 
-  /*
-  solr_master_pip_name    = "${local.solr_master_vm_name}-pip"
-  solr_slave1_pip_name    = "${local.solr_slave1_vm_name}-pip"
-  solr_slave2_pip_name    = "${local.solr_slave2_vm_name}-pip"
-  
-  */
-
   tenant_id = data.azurerm_client_config.current.tenant_id
   object_id = data.azurerm_client_config.current.object_id
+
   tags = {
     Tier            = "Backend"
     Infrastructure  = "NRF MICR"
@@ -98,4 +92,10 @@ locals {
     Service         = "Solr"
     TerraformScript = "solrCluster_1.0.0"
   }
+
+  # Public IPs created only for testing purposes
+  solr_master_pip_name  = "${local.glb_name}-MSTR-PIP"
+  solr_slave_1_pip_name = "${local.glb_name}-SLV1-PIP"
+  solr_slave_2_pip_name = "${local.glb_name}-SLV2-PIP"
+
 }

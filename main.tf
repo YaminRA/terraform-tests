@@ -116,7 +116,7 @@ module "solr_master_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_master_private_ip
-  #pip_id       = module.solr_master_pip.pip_id
+  pip_id       = module.solr_master_pip.id
   tags = local.tags
 }
 
@@ -129,7 +129,7 @@ module "solr_slave_1_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_slave_1_private_ip
-  #pip_id       = module.solr_master_pip.pip_id
+  pip_id       = module.solr_slave_1_pip.id
   tags = local.tags
 }
 
@@ -142,7 +142,7 @@ module "solr_slave_2_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_slave_2_private_ip
-  #pip_id       = module.solr_master_pip.pip_id
+  pip_id       = module.solr_slave_2_pip.id
   tags = local.tags
 }
 
@@ -386,31 +386,31 @@ module "solr_slave_2_vm_datadisk_attach" {
   disk_caching = local.datadisk_caching
 }
 
-/*
+# Public IPs created only for testing purposes
 module "solr_master_pip" {
   source   = "./modules/network/pip"
   name     = local.solr_master_pip_name
-  rg_name  = module.solr_rg.name
-  location = module.solr_rg.location
+  rg_name  = module.rg.name
+  location = local.glb_location
   tags     = local.tags
 }
 
-module "solr_slave1_pip" {
+module "solr_slave_1_pip" {
   source   = "./modules/network/pip"
-  name     = local.solr_slave1_pip_name
-  rg_name  = module.solr_rg.name
-  location = module.solr_rg.location
+  name     = local.solr_slave_1_pip_name
+  rg_name  = module.rg.name
+  location = local.glb_location
   tags     = local.tags
 }
 
-module "solr_slave2_pip" {
+module "solr_slave_2_pip" {
   source   = "./modules/network/pip"
-  name     = local.solr_slave2_pip_name
-  rg_name  = module.solr_rg.name
-  location = module.solr_rg.location
+  name     = local.solr_slave_2_pip_name
+  rg_name  = module.rg.name
+  location = local.glb_location
   tags     = local.tags
 }
-*/
+
 /*
 module "provision_solr_master" {
   source                 = "./modules/config"
