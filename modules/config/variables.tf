@@ -6,15 +6,15 @@ variable "module_depends_on" {
 variable "connection_host" {
   type = string
 }
+
 variable "connection_type" {
   type = string
 }
+
 variable "connection_user" {
   type = string
 }
+
 variable "connection_password" {
-  type = string
-}
-variable "connection_private_key" {
   type = string
 }
