@@ -31,33 +31,51 @@ module "nsg" {
 }
 
 module "solr_nsg_rule_association" {
-  source                     = "./modules/network/nsg/sr"
-  name                       = "SOLR"
-  priority                   = 1000
-  direction                  = "Inbound"
-  access                     = "Allow"
-  protocol                   = "Tcp"
-  source_port_range          = "*"
-  destination_port_range     = "8983"
-  source_address_prefix      = "*"
-  destination_address_prefix = "*"
-  rg_name                    = module.rg.name
-  nsg_name                   = module.nsg.name
+  source                       = "./modules/network/nsg/sr"
+  name                         = "SOLR"
+  description                  = "Allow reaching Solr whithin VNet resources"
+  rg_name                      = module.rg.name
+  nsg_name                     = module.nsg.name
+  priority                     = 1000
+  direction                    = "Inbound"
+  access                       = "Allow"
+  protocol                     = "Tcp"
+  source_port_range            = "*"
+  destination_port_ranges      = ["8983"]
+  source_address_prefixes      = local.vnet_address_space
+  destination_address_prefixes = local.subnet_cidr
 }
 
 module "ssh_nsg_rule_association" {
-  source                     = "./modules/network/nsg/sr"
-  name                       = "SSH"
-  priority                   = 1001
-  direction                  = "Inbound"
-  access                     = "Allow"
-  protocol                   = "Tcp"
-  source_port_range          = "*"
-  destination_port_range     = "22"
-  source_address_prefix      = "*"
-  destination_address_prefix = "*"
-  rg_name                    = module.rg.name
-  nsg_name                   = module.nsg.name
+  source                       = "./modules/network/nsg/sr"
+  name                         = "SSH"
+  description                  = "Allow SSH connection whithin VNet resources"
+  rg_name                      = module.rg.name
+  nsg_name                     = module.nsg.name
+  priority                     = 1001
+  direction                    = "Inbound"
+  access                       = "Allow"
+  protocol                     = "Tcp"
+  source_port_range            = "*"
+  destination_port_ranges      = ["22"]
+  source_address_prefixes      = local.vnet_address_space
+  destination_address_prefixes = local.subnet_cidr
+}
+# Rule created only to reach JumpBox VM and reach Solr VMs
+module "rdp_nsg_rule_association" {
+  source                       = "./modules/network/nsg/sr"
+  name                         = "RDP"
+  description                  = "Allow RDP connection from anywhere"
+  rg_name                      = module.rg.name
+  nsg_name                     = module.nsg.name
+  priority                     = 1002
+  direction                    = "Inbound"
+  access                       = "Allow"
+  protocol                     = "Tcp"
+  source_port_range            = "*"
+  destination_port_ranges      = ["3389"]
+  source_address_prefix        = "*"
+  destination_address_prefixes = local.subnet_cidr
 }
 
 module "nsg_subnet_association" {
@@ -116,7 +134,6 @@ module "solr_master_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_master_private_ip
-  pip_id                = module.solr_master_pip.id
   tags                  = local.tags
 }
 
@@ -129,7 +146,6 @@ module "solr_slave_1_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_slave_1_private_ip
-  pip_id                = module.solr_slave_1_pip.id
   tags                  = local.tags
 }
 
@@ -142,7 +158,6 @@ module "solr_slave_2_nic" {
   subnet_id             = module.subnet.id
   private_ip_allocation = local.nic_private_ip_allocation
   private_ip            = local.solr_slave_2_private_ip
-  pip_id                = module.solr_slave_2_pip.id
   tags                  = local.tags
 }
 
@@ -231,12 +246,6 @@ module "solr_slave_2_secret" {
   min_special           = local.kv_secret_min_special
   allowed_special_chars = local.kv_secret_allowed_special_chars
   tags                  = local.tags
-}
-
-resource "azurerm_key_vault_secret" "ssh_test" {
-  name         = "SSH-Private-Key"
-  value        = base64encode(file("./terraform_rsa"))
-  key_vault_id = module.kv.id
 }
 
 module "solr_master_sa" {
@@ -385,43 +394,60 @@ module "solr_slave_2_vm_datadisk_attach" {
   disk_lun     = local.datadisk_lun
   disk_caching = local.datadisk_caching
 }
-
-# Public IPs created only for testing purposes
-module "solr_master_pip" {
+# JumpBox resources to reach Solr VMs
+module "jumpbox_pip" {
   source   = "./modules/network/pip"
-  name     = local.solr_master_pip_name
+  name     = "jumpbox-pip"
   rg_name  = module.rg.name
   location = local.glb_location
   tags     = local.tags
 }
 
-module "solr_slave_1_pip" {
-  source   = "./modules/network/pip"
-  name     = local.solr_slave_1_pip_name
-  rg_name  = module.rg.name
-  location = local.glb_location
-  tags     = local.tags
+module "jumpbox_nic" {
+  source                = "./modules/network/nic"
+  name                  = "jumpbox-nic"
+  rg_name               = module.rg.name
+  location              = local.glb_location
+  ipc_name              = local.nic_ipc_name
+  subnet_id             = module.subnet.id
+  private_ip_allocation = local.nic_private_ip_allocation
+  private_ip            = "10.68.19.248"
+  pip_id                = module.jumpbox_pip.id
+  tags                  = local.tags
 }
 
-module "solr_slave_2_pip" {
-  source   = "./modules/network/pip"
-  name     = local.solr_slave_2_pip_name
-  rg_name  = module.rg.name
-  location = local.glb_location
-  tags     = local.tags
-}
+resource "azurerm_windows_virtual_machine" "jumpbox" {
+  name                  = "jumpbox-vm"
+  resource_group_name   = module.rg.name
+  location              = local.glb_location
+  size                  = local.vm_size
+  admin_username        = "adminuser"
+  admin_password        = "P@$$w0rd1234!"
+  network_interface_ids = [module.jumpbox_nic.id]
 
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2019-Datacenter"
+    version   = "latest"
+  }
+}
 /*
-module "provision_solr_master" {
-  source                 = "./modules/config"
-  connection_host        = module.solr_master_pip.ip_address
-  connection_type        = "ssh"
-  connection_user        = local.vm_admin_username
-  connection_password    = module.solr_master_secret.value
-  connection_private_key = file("${path.root}/terraform_rsa")
-  module_depends_on      = [module.solr_master_vm_datadisk_attach.id]
-}
-*/
+module "provision_solr_vm" {
+  source          = "./modules/config"
+  connection_host = module.remote_exec_pip.ip_address
+  connection_type = "ssh"
+  connection_user = local.vm_admin_username
+  connection_password = module.solr_master_secret.value
+  #private_key       = file("./terraform_rsa")
+  module_depends_on = [azurerm_linux_virtual_machine.remote_exec]
+}*/
+
 /* Pending:
 - Auto config Solr installation
 - Auto config datadisk format and mounting

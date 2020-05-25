@@ -92,10 +92,4 @@ locals {
     Service         = "Solr"
     TerraformScript = "solrCluster_1.0.0"
   }
-
-  # Public IPs created only for testing purposes
-  solr_master_pip_name  = "${local.glb_name}-MSTR-PIP"
-  solr_slave_1_pip_name = "${local.glb_name}-SLV1-PIP"
-  solr_slave_2_pip_name = "${local.glb_name}-SLV2-PIP"
-
 }
