@@ -8,9 +8,8 @@ locals {
 
   rg_name = "${local.glb_name}-RG"
 
-  # VNet created only for testing purposes
-  vnet_name          = "${local.glb_name}-VNT"
-  vnet_address_space = ["10.68.19.0/24"]
+  vnet_name    = "UKSOUTH-NRFLIFT-PROD-VNT"
+  vnet_rg_name = "UKSOUTH-NRFLIFT-PROD-RGP-NETWORK"
 
   subnet_name = "${local.glb_name}-SBN"
   subnet_cidr = ["10.68.19.240/28"]
@@ -38,7 +37,7 @@ locals {
 
   avs_name = "${local.glb_name}-AVS"
 
-  kv_name                         = "${local.glb_name}-KV"
+  kv_name                         = replace("${local.glb_name}KV", "-", "")
   kv_sku                          = "standard"
   kv_ap_key_permissions           = ["backup", "create", "decrypt", "delete", "encrypt", "get", "import", "list", "purge", "recover", "restore", "sign", "unwrapKey", "update", "verify", "wrapKey"]
   kv_ap_secret_permissions        = ["backup", "delete", "get", "list", "purge", "recover", "restore", "set"]
@@ -58,7 +57,7 @@ locals {
   solr_slave_1_sa_name = "solrslave1diagsa"
   solr_slave_2_sa_name = "solrslave2diagsa"
 
-  vm_size                     = "Standard_DS1_v2"
+  vm_size                     = "Standard_D4s_v3"
   vm_oscaching                = "ReadWrite"
   vm_admin_username           = "solradmin"
   vm_publisher                = "OpenLogic"

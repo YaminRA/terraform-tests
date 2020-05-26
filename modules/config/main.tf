@@ -4,11 +4,11 @@ resource "null_resource" "provision_solr" {
     user     = var.connection_user
     password = var.connection_password
     host     = var.connection_host
-    timeout = "30s"
+    timeout  = "30s"
   }
 
   provisioner "file" {
-    source      = "../scripts"
+    source      = "scripts/"
     destination = "~/."
   }
 
