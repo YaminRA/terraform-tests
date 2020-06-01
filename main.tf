@@ -33,23 +33,7 @@ module "ssh_nsg_rule_association" {
   protocol                   = "Tcp"
   source_port_range          = "*"
   destination_port_ranges    = ["22"]
-  source_address_prefix      = "*"
-  destination_address_prefix = "*"
-}
-
-module "https_nsg_rule_association" {
-  source                     = "./modules/network/nsg/sr"
-  name                       = "HTTPS"
-  description                = "Allow HTTPS connection whithin resources"
-  rg_name                    = module.rg.name
-  nsg_name                   = module.nsg.name
-  priority                   = 310
-  direction                  = "Inbound"
-  access                     = "Allow"
-  protocol                   = "Tcp"
-  source_port_range          = "*"
-  destination_port_ranges    = ["443"]
-  source_address_prefix      = "*"
+  source_address_prefixes    = local.nsg_allowed_addresses
   destination_address_prefix = "*"
 }
 
@@ -59,13 +43,13 @@ module "solr_nsg_rule_association" {
   description                = "Allow reaching Solr whithin resources"
   rg_name                    = module.rg.name
   nsg_name                   = module.nsg.name
-  priority                   = 330
+  priority                   = 300
   direction                  = "Inbound"
   access                     = "Allow"
   protocol                   = "Tcp"
   source_port_range          = "*"
   destination_port_ranges    = ["8983"]
-  source_address_prefix      = "*"
+  source_address_prefix      = "VirtualNetwork"
   destination_address_prefix = "*"
 }
 

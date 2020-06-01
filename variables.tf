@@ -14,7 +14,8 @@ locals {
   subnet_name = "${local.glb_name}-SBN"
   subnet_cidr = ["10.68.19.240/28"]
 
-  nsg_name = "${local.glb_name}-NSG"
+  nsg_name              = "${local.glb_name}-NSG"
+  nsg_allowed_addresses = ["10.68.14.132"]
 
   lb_name                  = "${local.glb_name}-LB"
   lb_fe_ipc_name           = "${local.lb_name}-IP"
